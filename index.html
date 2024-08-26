@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="utf-8" />
+    <title>Beancount 生成器</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+      }
+      .container {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Beancount 生成器</h1>
+      <button id="generate">生成 Beancount 文件</button>
+    </div>
+
+    <script type="module">
+      import init, {
+        Transaction,
+        generate_beancount,
+      } from './pkg/beancount_generator.js';
+
+      async function run() {
+        await init();
+
+        document.getElementById('generate').addEventListener('click', () => {
+          const transaction = new Transaction('2024-08-26', '超市', '購買食品');
+          transaction.add_posting('支出:食品', 140.0, 'TWD');
+          transaction.add_posting('資產:現金', -140.0, 'TWD');
+
+          const beancount = generate_beancount(transaction);
+
+          // 創建並下載文件
+          const blob = new Blob([beancount], { type: 'text/plain' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'transaction.beancount';
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      run();
+    </script>
+  </body>
+</html>
